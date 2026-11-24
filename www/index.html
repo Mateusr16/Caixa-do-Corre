@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caixa do Corre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: prático, de rua, rápido de usar com uma mão no semáforo
+   IDEA: a bag de entrega + o bloquinho de caixa do motoboy
+   PICTURE: o total de hoje enorme no topo, e o teclado de lançamento logo abaixo
+   COLOUR/TYPE: laranja-bag dominante, tinta quase preta, verde só para lucro; Barlow Condensed nos números
+   LAYOUT: coluna única de celular, até 560px no desktop, faixas de ponta a ponta */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#121417);--ink:light-dark(#121417,#f1f1ee);--mute:light-dark(#5d636b,#a3a8ae);
+--line:light-dark(#e6e4df,#2a2e33);--card:light-dark(#f6f5f2,#1b1e22);
+--bag:#ff4a1c;--bagInk:#fff;--ok:light-dark(#0f7a4a,#3fcf8e);--bad:light-dark(#c2261b,#ff7a6b)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:560px;margin:0 auto;padding:0 max(4vw,16px)}
+.num{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+header{background:var(--bag);color:var(--bagInk);padding:22px 0 26px}
+header .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+header h1{margin:0;font:600 17px Barlow,sans-serif}
+header .date{font-size:14px;opacity:.9}
+.today{font-size:clamp(56px,17vw,92px);line-height:1;margin:10px 0 4px}
+.sub{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px}
+.sub b{font-family:"Barlow Condensed";font-size:22px;font-weight:800}
+main section{padding:22px 0;border-bottom:1px solid var(--line)}
+h2{font:800 24px/1.1 "Barlow Condensed",sans-serif;margin:0 0 12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:none;color:var(--mute);font:600 16px Barlow;min-height:44px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002}
+.seg button[aria-pressed=true].g{color:var(--ok)}.seg button[aria-pressed=true].d{color:var(--bad)}
+.amount{display:flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:14px;padding:4px 14px;margin:12px 0 10px}
+.amount:focus-within{border-color:var(--bag)}
+.amount span{font:800 30px "Barlow Condensed";color:var(--mute)}
+.amount input{flex:1;border:0;background:none;color:var(--ink);font:800 48px "Barlow Condensed",sans-serif;padding:4px 0;outline:none;width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:0 14px;min-height:40px;font:600 15px Barlow;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.plus{font-family:"Barlow Condensed";font-size:18px;font-weight:800}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row label{font-size:14px;color:var(--mute)}
+input[type=date],input[type=text]{font:16px Barlow;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px}
+input[type=text]{flex:1}
+.save{width:100%;margin-top:12px;min-height:58px;border:0;border-radius:14px;background:var(--bag);color:#fff;font:800 24px "Barlow Condensed";cursor:pointer}
+.save:disabled{opacity:.45}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--bag);outline-offset:2px}
+.status{font-size:13px;color:var(--mute);margin-top:8px}
+.weekhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.nav{display:flex;gap:6px}.nav button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:20px;cursor:pointer}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:42px minmax(0,1fr) 86px;align-items:center;gap:8px;font-size:15px}
+.bar .t{height:22px;background:var(--card);border-radius:6px;overflow:hidden}
+.bar .f{height:100%;background:var(--bag);border-radius:6px;transition:width .4s}
+.bar .v{text-align:right;font-size:19px}
+.bar.cur .d{font-weight:700;color:var(--bag)}
+.tot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.tot div{background:var(--card);border-radius:12px;padding:10px 12px}
+.tot small{display:block;font-size:13px;color:var(--mute)}
+.tot .num{font-size:clamp(20px,6vw,26px)}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:grid;grid-template-columns:minmax(0,1fr) auto 44px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.list .what{font-weight:600}.list .when{font-size:13px;color:var(--mute)}
+.list .num{font-size:22px}
+.del{width:44px;height:44px;border:0;background:none;color:var(--mute);font-size:22px;cursor:pointer;border-radius:10px}
+.empty{color:var(--mute);margin:4px 0}
+.wa{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;border-radius:14px;background:#1f8f4e;color:#fff;text-decoration:none;font:800 22px "Barlow Condensed";margin-top:12px}
+pre.msg{white-space:pre-wrap;background:var(--card);border-radius:12px;padding:12px;font:15px/1.45 Barlow;margin:12px 0 0}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--bg);padding:10px 12px 10px 16px;border-radius:12px;display:flex;gap:12px;align-items:center;transition:transform .25s;z-index:9;max-width:92vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast button{background:none;border:0;color:var(--bag);font:700 16px Barlow;min-height:40px;cursor:pointer}
+footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><h1>Caixa do Corre</h1><span class="date" id="hdate"></span></div>
+  <div class="today num" id="hToday">R$ 0</div>
+  <div class="sub"><span>Semana <b id="hWeek">R$ 0</b></span><span>Mês <b id="hMonth">R$ 0</b></span><span id="hNote">líquido (ganhos − gastos)</span></div>
+</div></header>
+
+<main class="wrap">
+<section aria-labelledby="t-add">
+  <h2 id="t-add">Anotar</h2>
+  <div class="seg" role="group" aria-label="Tipo">
+    <button class="g" id="tG" aria-pressed="true">+ Ganho</button>
+    <button class="d" id="tD" aria-pressed="false">− Gasto</button>
+  </div>
+  <div class="amount"><span>R$</span><input id="val" inputmode="decimal" placeholder="0,00" autocomplete="off" aria-label="Valor"></div>
+  <div class="chips" id="quick"></div>
+  <div class="chips" id="cats" role="group" aria-label="O que foi"></div>
+  <div class="row">
+    <input type="text" id="note" placeholder="Obs. (opcional) ex.: loja X" maxlength="60" aria-label="Observação">
+  </div>
+  <div class="row" style="margin-top:10px"><label for="day">Dia</label><input type="date" id="day"></div>
+  <button class="save" id="save" disabled>Salvar</button>
+  <div class="status" id="status">Conectando…</div>
+</section>
+
+<section aria-labelledby="t-week">
+  <div class="weekhead"><h2 id="t-week" style="margin:0">Semana</h2>
+    <div class="nav"><button id="wPrev" aria-label="Semana anterior">‹</button><button id="wNext" aria-label="Próxima semana">›</button></div></div>
+  <div class="status" id="wRange" style="margin:0 0 10px"></div>
+  <div class="bars" id="bars"></div>
+  <div class="tot" id="wTot"></div>
+</section>
+
+<section aria-labelledby="t-month">
+  <div class="weekhead"><h2 id="t-month" style="margin:0">Mês</h2>
+    <div class="nav"><button id="mPrev" aria-label="Mês anterior">‹</button><button id="mNext" aria-label="Próximo mês">›</button></div></div>
+  <div class="status" id="mName" style="margin:0"></div>
+  <div class="tot" id="mTot"></div>
+  <div class="tot" id="mExtra"></div>
+</section>
+
+<section aria-labelledby="t-list">
+  <h2 id="t-list">Lançamentos do dia <span class="status" id="lDay"></span></h2>
+  <ul class="list" id="list"></ul>
+</section>
+
+<section aria-labelledby="t-wa">
+  <h2 id="t-wa">Mandar resumo no WhatsApp</h2>
+  <div class="seg" role="group" aria-label="Período do resumo" style="grid-template-columns:repeat(3,1fr)">
+    <button id="rD" aria-pressed="false">Dia</button><button id="rW" aria-pressed="true">Semana</button><button id="rM" aria-pressed="false">Mês</button>
+  </div>
+  <pre class="msg" id="msg"></pre>
+  <a class="wa" id="wa" href="https://wa.me/" target="_blank" rel="noopener">Abrir no WhatsApp</a>
+  <div class="status">Abre o WhatsApp com o texto pronto — escolha a conversa “Você” (mensagem para si mesmo) ou quem quiser.</div>
+</section>
+<footer>Dica: no celular, abra este link e use “Adicionar à tela inicial” para virar um ícone de app.</footer>
+</main>
+
+<div class="toast" id="toast" role="status"><span id="tMsg"></span><button id="tUndo">Desfazer</button></div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const CATS={g:["Entrega","Gorjeta","Diária","Outro"],d:["Gasolina","Manutenção","Comida","Outro"]};
+const QUICK=[5,10,15,20,50];
+const brl=c=>(c<0?"−":"")+"R$ "+(Math.abs(c)/100).toLocaleString("pt-BR",{minimumFractionDigits:Math.abs(c)%100?2:0,maximumFractionDigits:2});
+const pad=n=>String(n).padStart(2,"0");
+const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseKey=k=>{const[y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const monday=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());return addDays(x,-((x.getDay()+6)%7))};
+const DOW=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+const MES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+let days={};          // "YYYY-MM-DD" -> [{id,t,v,cat,note,ts}]
+let type="g",cat="Entrega",wOff=0,mOff=0,rep="w",col=null,mode="local",lastDel=null;
+const today=()=>key(new Date());
+$("day").value=today();
+
+function toCents(s){s=String(s).replace(/[^\d,.]/g,"");if(!s)return 0;
+  if(s.includes(","))s=s.replace(/\./g,"").replace(",",".");return Math.round(parseFloat(s)*100)||0}
+function sum(list){let g=0,d=0;for(const e of list)(e.t==="g"?g+=e.v:d+=e.v);return{g,d,n:g-d}}
+function range(a,b){const out=[];for(let d=new Date(a);d<=b;d=addDays(d,1))out.push(...(days[key(d)]||[]));return out}
+function worked(a,b){let n=0;for(let d=new Date(a);d<=b;d=addDays(d,1))if((days[key(d)]||[]).some(e=>e.t==="g"))n++;return n}
+
+/* ---------- formulário ---------- */
+function setType(t){type=t;$("tG").setAttribute("aria-pressed",t==="g");$("tD").setAttribute("aria-pressed",t==="d");cat=CATS[t][0];drawCats();$("save").textContent=t==="g"?"Salvar ganho":"Salvar gasto"}
+function drawCats(){$("cats").innerHTML=CATS[type].map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${c}">${c}</button>`).join("")}
+$("quick").innerHTML=QUICK.map(q=>`<button class="chip plus" data-q="${q}">+${q}</button>`).join("")+`<button class="chip" data-q="0">Limpar</button>`;
+$("quick").onclick=e=>{const b=e.target.closest("[data-q]");if(!b)return;const q=+b.dataset.q;
+  const v=q?toCents($("val").value)+q*100:0;$("val").value=v?(v/100).toLocaleString("pt-BR",{minimumFractionDigits:v%100?2:0}):"";check()};
+$("cats").onclick=e=>{const b=e.target.closest("[data-c]");if(!b)return;cat=b.dataset.c;drawCats()};
+$("tG").onclick=()=>setType("g");$("tD").onclick=()=>setType("d");
+const check=()=>{$("save").disabled=toCents($("val").value)<=0};
+$("val").oninput=check;
+$("val").onkeydown=e=>{if(e.key==="Enter"&&!$("save").disabled)$("save").click()};
+
+$("save").onclick=async()=>{
+  const v=toCents($("val").value);if(v<=0)return;
+  const k=$("day").value||today();
+  const e={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:type,v,cat,note:$("note").value.trim(),ts:Date.now()};
+  days[k]=[...(days[k]||[]),e];
+  $("val").value="";$("note").value="";check();render();
+  toast(`${type==="g"?"Ganho":"Gasto"} de ${brl(v)} anotado`,null);
+  await persist(k);
+};
+
+/* ---------- armazenamento ---------- */
+const chains={};
+function persist(k){
+  chains[k]=(chains[k]||Promise.resolve()).then(async()=>{
+    const items=days[k]||[];
+    if(mode==="cloud"){try{items.length?await col.doc(k).set({date:k,items}):await col.doc(k).delete()}
+      catch(err){$("status").textContent="Não consegui salvar na nuvem agora ("+(err&&err.code||"erro")+"). Guardei neste aparelho.";saveLocal()}}
+    else saveLocal();
+  });return chains[k];
+}
+function saveLocal(){try{localStorage.setItem("caixa-corre-v1",JSON.stringify(days))}catch(e){}}
+function loadLocal(){try{return JSON.parse(localStorage.getItem("caixa-corre-v1")||"{}")||{}}catch(e){return{}}}
+
+async function boot(){
+  days=loadLocal();render();
+  let db=null,user=null;
+  try{[db,user]=await Promise.all([window.claude?.use?.("db"),window.claude?.use?.("user")])}catch(e){}
+  let uid=null;try{uid=user?await user.id():null}catch(e){}
+  if(!db||!uid){$("status").textContent="Salvo neste celular (funciona sem internet).";return}
+  col=db.collection("data/users/"+uid);mode="cloud";
+  const local=days;
+  const timer=setTimeout(()=>{$("status").textContent="A nuvem está demorando… o que você anotar fica guardado."},10000);
+  let first=true;
+  col.onSnapshot(snap=>{
+    const next={};for(const d of snap.docs){const b=d.data();if(b&&Array.isArray(b.items))next[d.id]=b.items.slice()}
+    if(first){first=false;
+      // envia para a nuvem o que estava só no aparelho
+      for(const k in local){const have=new Set((next[k]||[]).map(e=>e.id));const extra=local[k].filter(e=>!have.has(e.id));
+        if(extra.length){next[k]=[...(next[k]||[]),...extra];days[k]=next[k];persist(k)}}}
+    days=next;render();
+    if(!snap.metadata.fromCache){clearTimeout(timer);$("status").textContent="Salvo na sua conta — aparece igual no celular e no computador."}
+  },err=>{clearTimeout(timer);mode="local";days=loadLocal();render();$("status").textContent="Sem conexão com a nuvem. Salvando neste aparelho."});
+}
+
+/* ---------- telas ---------- */
+function totBox(s){return`<div><small>Ganhos</small><span class="num pos">${brl(s.g)}</span></div><div><small>Gastos</small><span class="num neg">${brl(s.d)}</span></div><div><small>Sobrou</small><span class="num ${s.n<0?"neg":""}">${brl(s.n)}</span></div>`}
+function render(){
+  const now=new Date(),tk=today();
+  $("hdate").textContent=now.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"});
+  const m0=monday(now);
+  $("hToday").textContent=brl(sum(days[tk]||[]).n);
+  $("hWeek").textContent=brl(sum(range(m0,addDays(m0,6))).n);
+  const ms=new Date(now.getFullYear(),now.getMonth(),1),me=new Date(now.getFullYear(),now.getMonth()+1,0);
+  $("hMonth").textContent=brl(sum(range(ms,me)).n);
+
+  // semana
+  const ws=addDays(m0,7*wOff),we=addDays(ws,6);
+  const vals=DOW.map((_,i)=>sum(days[key(addDays(ws,i))]||[]).g);
+  const max=Math.max(...vals,1);
+  $("wRange").textContent=`${ws.toLocaleDateString("pt-BR",{day:"numeric",month:"short"})} a ${we.toLocaleDateString("pt-BR",{day:"numeric",month:"short"})} · barras = ganhos do dia`;
+  $("bars").innerHTML=vals.map((v,i)=>`<div class="bar${key(addDays(ws,i))===tk?" cur":""}"><span class="d">${DOW[i]}</span><div class="t"><div class="f" style="width:${v/max*100}%"></div></div><span class="v num">${v?brl(v):"—"}</span></div>`).join("");
+  $("wTot").innerHTML=totBox(sum(range(ws,we)));
+  $("wNext").disabled=wOff>=0;
+
+  // mês
+  const mb=new Date(now.getFullYear(),now.getMonth()+mOff,1),mEnd=new Date(mb.getFullYear(),mb.getMonth()+1,0);
+  const s=sum(range(mb,mEnd)),wd=worked(mb,mEnd);
+  $("mName").textContent=MES[mb.getMonth()]+" de "+mb.getFullYear();
+  $("mTot").innerHTML=totBox(s);
+  $("mExtra").innerHTML=`<div><small>Dias rodados</small><span class="num">${wd}</span></div><div><small>Média por dia</small><span class="num">${wd?brl(Math.round(s.n/wd)):"—"}</span></div><div><small>Lançamentos</small><span class="num">${range(mb,mEnd).length}</span></div>`;
+  $("mNext").disabled=mOff>=0;
+
+  // lista do dia escolhido
+  const dk=$("day").value||tk,items=(days[dk]||[]).slice().sort((a,b)=>b.ts-a.ts);
+  $("lDay").textContent=dk===tk?"(hoje)":parseKey(dk).toLocaleDateString("pt-BR");
+  $("list").innerHTML=items.length?items.map(e=>`<li><div><div class="what">${esc(e.cat)}${e.note?" · "+esc(e.note):""}</div><div class="when">${new Date(e.ts).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</div></div><span class="num ${e.t==="g"?"pos":"neg"}">${e.t==="g"?"+":"−"}${brl(e.v)}</span><button class="del" data-id="${e.id}" aria-label="Apagar">×</button></li>`).join(""):`<li><p class="empty">Nada anotado nesse dia ainda.</p></li>`;
+  report();
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+$("list").onclick=async e=>{const b=e.target.closest(".del");if(!b)return;
+  const k=$("day").value||today(),it=(days[k]||[]).find(x=>x.id===b.dataset.id);if(!it)return;
+  days[k]=days[k].filter(x=>x.id!==it.id);lastDel={k,it};render();
+  toast(`Apagado: ${brl(it.v)}`,true);await persist(k)};
+$("tUndo").onclick=async()=>{if(!lastDel)return;const{k,it}=lastDel;lastDel=null;
+  days[k]=[...(days[k]||[]),it];render();hideToast();await persist(k)};
+$("day").onchange=render;
+$("wPrev").onclick=()=>{wOff--;render()};$("wNext").onclick=()=>{if(wOff<0){wOff++;render()}};
+$("mPrev").onclick=()=>{mOff--;render()};$("mNext").onclick=()=>{if(mOff<0){mOff++;render()}};
+
+/* ---------- resumo WhatsApp ---------- */
+function setRep(r){rep=r;for(const[id,v]of[["rD","d"],["rW","w"],["rM","m"]])$(id).setAttribute("aria-pressed",v===r);report()}
+$("rD").onclick=()=>setRep("d");$("rW").onclick=()=>setRep("w");$("rM").onclick=()=>setRep("m");
+function report(){
+  const now=new Date();let a,b,title;
+  if(rep==="d"){a=b=new Date(now.getFullYear(),now.getMonth(),now.getDate());title="Resumo de hoje ("+now.toLocaleDateString("pt-BR")+")"}
+  else if(rep==="w"){a=addDays(monday(now),7*wOff);b=addDays(a,6);title=`Resumo da semana (${a.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})} a ${b.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})})`}
+  else{a=new Date(now.getFullYear(),now.getMonth()+mOff,1);b=new Date(a.getFullYear(),a.getMonth()+1,0);title="Resumo de "+MES[a.getMonth()]+"/"+a.getFullYear()}
+  const list=range(a,b),s=sum(list),wd=worked(a,b);
+  const byCat={};for(const e of list)if(e.t==="d")byCat[e.cat]=(byCat[e.cat]||0)+e.v;
+  let t=`🏍️ ${title}\n\n💰 Ganhos: ${brl(s.g)}\n⛽ Gastos: ${brl(s.d)}`;
+  for(const c in byCat)t+=`\n   • ${c}: ${brl(byCat[c])}`;
+  t+=`\n✅ Sobrou: ${brl(s.n)}`;
+  if(rep!=="d")t+=`\n📅 Dias rodados: ${wd}${wd?` · média ${brl(Math.round(s.n/wd))}/dia`:""}`;
+  $("msg").textContent=t;$("wa").href="https://wa.me/?text="+encodeURIComponent(t);
+}
+
+/* ---------- aviso ---------- */
+let tt;function toast(m,undo){$("tMsg").textContent=m;$("tUndo").style.display=undo?"":"none";$("toast").classList.add("on");clearTimeout(tt);tt=setTimeout(hideToast,4500)}
+function hideToast(){$("toast").classList.remove("on")}
+
+setType("g");boot();
+setInterval(()=>{if($("hdate").dataset.k!==today()){$("hdate").dataset.k=today();render()}},60000);
+}
+</script>
+</body>
+</html>
