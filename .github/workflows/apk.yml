@@ -31,6 +31,9 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Aplicar o ícone do motoboy
+        run: cp -r android-res/. android/app/src/main/res/
+
       - name: Usar a mesma assinatura em todo APK (permite atualizar sem perder dados)
         run: |
           mkdir -p ~/.android
