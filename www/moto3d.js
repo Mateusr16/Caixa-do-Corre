@@ -5,7 +5,9 @@
 const BONES=[
  ['pelvis',-1,[0.11,-0.24,0.30]],['chest',0,[0.11,-0.16,0.30]],['head',1,[0.22,0.40,0.30]],
  ['armR',1,[0.40,0.30,0.30]],['foreR',3,[0.62,0.02,0.42]],['armL',1,[-0.24,0.33,0.30]],['foreL',5,[-0.42,0.02,0.40]],
- ['thighL',0,[-0.03,-0.30,0.30]],['shinL',7,[-0.15,-0.60,0.30]],['thighR',0,[0.27,-0.30,0.30]],['shinR',9,[0.36,-0.60,0.30]]];
+ ['thighL',0,[-0.03,-0.30,0.30]],['shinL',7,[-0.15,-0.60,0.30]],['thighR',0,[0.27,-0.30,0.30]],['shinR',9,[0.36,-0.60,0.30]],
+ ['handR',4,[0.61,0.19,0.56]],['fingR',11,[0.555,0.335,0.60]],['fingR2',11,[0.635,0.325,0.60]],['thumbR',11,[0.53,0.31,0.60]],
+ ['handL',6,[-0.31,-0.10,0.52]]];
 const NB=BONES.length;
 const VS=`attribute vec3 aPos;attribute vec3 aNrm;attribute vec2 aUv;attribute float aW;attribute vec3 aCol;attribute vec2 aBi;attribute float aBw;
 uniform mat4 uM;uniform mat4 uP;uniform float uOut;uniform mat4 uB[${NB}];

@@ -10,6 +10,8 @@ O app desenha o modelo com WebGL puro (`www/moto3d.js`), sem bibliotecas, e func
 Se o celular não tiver WebGL, aparece o boneco 2D.
 
 ## Esqueleto
-`rig.py` divide a malha em 11 ossos (quadril, peito, cabeça, braço e antebraço de cada lado,
-coxa e canela de cada lado), suaviza as emendas e grava os pesos no `moto3d.bin`.
+`rig.py` divide a malha em 16 ossos (quadril, peito, cabeça, braço/antebraço/mão de cada lado,
+dedo esticado, outros dedos e polegar da mão levantada, coxa e canela de cada lado), suaviza as emendas e grava os pesos no `moto3d.bin`.
 As poses de cada humor e reação ficam em `www/index.html` (`moodBones` e `eventBones`).
+
+O braço do lado da bag é colado no tronco na malha original: mantenha as rotações de `armL` pequenas (até ~0,35 rad).
