@@ -1,6 +1,6 @@
 /* Caixa do Corre — motoboy 3D animado (WebGL puro, funciona offline).
    Moto3D.create(canvas, binUrl, texUrl) -> Promise<{draw(pose), project([x,y,z], pose, bone)}>
-   pose = {rot, tilt, roll, y, x, sx, sy, bones:{nome:[rx,ry,rz]}}  (radianos / unidades do modelo) */
+   pose = {rot, tilt, roll, y, x, sx, sy, bones:{nome:[rx,ry,rz,escala]}}  (radianos / unidades do modelo) */
 (function(){
 const BONES=[
  ['pelvis',-1,[0.11,-0.24,0.30]],['chest',0,[0.11,-0.16,0.30]],['head',1,[0.22,0.40,0.30]],
@@ -52,6 +52,7 @@ function skeleton(bones){
     const [name,par,pv]=BONES[i],r=(bones&&bones[name])||[0,0,0];
     let m=tr(pv[0],pv[1],pv[2]);
     m=mul(m,rotY(r[1]));m=mul(m,rotX(r[0]));m=mul(m,rotZ(r[2]));
+    if(r[3]!==undefined&&r[3]!==1)m=mul(m,scl(r[3],r[3],r[3]));
     m=mul(m,tr(-pv[0],-pv[1],-pv[2]));
     out[i]=par<0?m:mul(out[par],m);flat.set(out[i],i*16);
   }
@@ -91,7 +92,7 @@ async function create(canvas,binUrl,texUrl){
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   const U={M:gl.getUniformLocation(pr,'uM'),P:gl.getUniformLocation(pr,'uP'),Out:gl.getUniformLocation(pr,'uOut'),Ol:gl.getUniformLocation(pr,'uOutline'),T:gl.getUniformLocation(pr,'uTex'),B:gl.getUniformLocation(pr,'uB')};
   gl.uniform1i(U.T,0);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);
-  function size(){const d=Math.min(window.devicePixelRatio||1,3),W=Math.round(canvas.clientWidth*d),H=Math.round(canvas.clientHeight*d);
+  function size(){const d=Math.min(window.devicePixelRatio||1,2),W=Math.round(canvas.clientWidth*d),H=Math.round(canvas.clientHeight*d);
     if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H}return W/H}
   let last=null;
   function draw(p){
@@ -100,7 +101,7 @@ async function create(canvas,binUrl,texUrl){
     last=skeleton(p.bones);
     gl.uniformMatrix4fv(U.B,false,last.flat);
     gl.uniformMatrix4fv(U.M,false,model(p));gl.uniformMatrix4fv(U.P,false,ortho(asp));
-    gl.cullFace(gl.FRONT);gl.uniform1f(U.Out,0.016);gl.uniform1f(U.Ol,1);gl.drawElements(gl.TRIANGLES,nF*3,gl.UNSIGNED_SHORT,0);
+    gl.cullFace(gl.FRONT);gl.uniform1f(U.Out,0.010);gl.uniform1f(U.Ol,1);gl.drawElements(gl.TRIANGLES,nF*3,gl.UNSIGNED_SHORT,0);
     gl.cullFace(gl.BACK);gl.uniform1f(U.Out,0);gl.uniform1f(U.Ol,0);gl.drawElements(gl.TRIANGLES,nF*3,gl.UNSIGNED_SHORT,0);
   }
   /* posição na tela de um ponto do modelo, seguindo o osso (mão, viseira) */
