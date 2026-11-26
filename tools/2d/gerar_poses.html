@@ -1,0 +1,24 @@
+<html><body style="margin:0;background:transparent">
+<script src="puppet.js"></script>
+<script>
+const POSES={
+ rest:{},
+ waveA:{upR:[-48],foR:[-48],haR:[-12]},
+ waveB:{upR:[-44],foR:[-14],haR:[18]},
+ cheer:{upL:[58],foL:[12],haL:[-8],upR:[-58],foR:[-12],haR:[8],head:[-4]},
+ cheerB:{upL:[66],foL:[24],haL:[-14],upR:[-66],foR:[-24],haR:[14],head:[4]},
+ sad:{head:[10,4,14],torso:[2,0,4],hips:[0,0,6],upL:[-88],foL:[-4],haL:[-4],upR:[88],foR:[4],haR:[4],root:[0,0,0,1,.97]},
+ scared:{upL:[55],foL:[24],haL:[6],upR:[-55],foR:[-24],haR:[-6],head:[-6,0,-4],thL:[6],thR:[-6],shL:[-8],shR:[8]},
+ scaredB:{upL:[60],foL:[36],haL:[-14],upR:[-60],foR:[-36],haR:[14],head:[-4,0,-4],thL:[6],thR:[-6],shL:[-8],shR:[8]},
+ crouch:{upL:[-40],foL:[-30],upR:[40],foR:[30],head:[0,0,6]},
+ eat:{upR:[-118],foR:[-118],haR:[-30],head:[-6],torso:[-3]},
+ hold:{upL:[-88],foL:[-4],haL:[-8],torso:[-4],head:[8,0,4],upR:[70]},
+ fix:{upR:[-20],foR:[-95],haR:[0],torso:[3],head:[10,0,4]},
+ wipe:{upL:[150],foL:[-75],haL:[-30],head:[-6],upR:[60]},
+ reach:{upR:[-45],foR:[-10],haR:[-25],torso:[6],head:[-10],upL:[-60]}
+};
+(async()=>{try{const out={};
+for(const n in POSES){const c=document.createElement('canvas');c.id='c_'+n;c.dataset.headroom=0;c.style.cssText='width:300px;height:360px;display:block';document.body.appendChild(c);
+ const p=await Puppet.create(c,'pecas/',{manual:true,bare:true});await new Promise(r=>setTimeout(r,120));out[n]=p._set(POSES[n])}
+window.ANCH=out;document.title='ok'}catch(e){document.title='ERR '+e}})();
+</script></body></html>

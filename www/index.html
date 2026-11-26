@@ -270,7 +270,7 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
 
 <div class="toast" id="toast" role="status"><span id="tMsg"></span><button id="tUndo">Desfazer</button></div>
 
-<script src="boneco/puppet.js"></script>
+<script src="boneco/sprite.js"></script>
 <script>
 {
 const $=id=>document.getElementById(id);
@@ -463,8 +463,8 @@ $("moto").onclick=()=>{
 /* ---------- motoboy 2D animado ---------- */
 const PUP={api:null};
 (async()=>{
-  if(!window.Puppet)return;
-  try{PUP.api=await Puppet.create($("pup"),"boneco/");PUP.api.setMood(moodNow);$("stage").classList.add("onPup")}
+  if(!window.Sprite)return;
+  try{PUP.api=await Sprite.create($("pup"),"boneco/");PUP.api.setMood(moodNow);$("stage").classList.add("onPup")}
   catch(err){/* sem as imagens: fica o boneco 2D simples */}
 })();
 $("pup").onclick=()=>$("moto").onclick();

@@ -195,11 +195,11 @@ async function create(canvas,base,opts={}){
       let m=mul(T(pv[0]+c[1],pv[1]+c[2]),mul(R(c[0]*D2R),mul(Sc(c[3],c[4]),T(-pv[0],-pv[1]))));
       mats[IDX[n]]=par?mul(mats[IDX[par]],m):m}
     const d=size();ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,W,H);
-    const [fx0,fy0]=footPt();ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(fx0,fy0-2,W*.27,5,0,0,7);ctx.fill();
+    if(!opts.bare){const [fx0,fy0]=footPt();ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(fx0,fy0-2,W*.27,5,0,0,7);ctx.fill();}
     for(const [bn,img,mir] of DRAW){const m=mul(view,mats[IDX[bn]]),bx=BOX[img];
       ctx.setTransform(d*m[0],d*m[1],d*m[2],d*m[3],d*m[4],d*m[5]);if(mir){ctx.translate(AX,0);ctx.scale(-1,1)}
       ctx.drawImage(IMG[img],bx[0],bx[1],bx[2]-bx[0],bx[3]-bx[1])}
-    ctx.setTransform(d,0,0,d,0,0);drawProp(k,q,t);drawFx(0);
+    ctx.setTransform(d,0,0,d,0,0);if(!opts.bare){drawProp(k,q,t);drawFx(0)}
   }
   function drawProp(k,q,t){
     if(!k||!prop)return;const I=PROP[prop];if(!I.complete)return;
@@ -230,6 +230,10 @@ async function create(canvas,base,opts={}){
   let onScreen=true;try{new IntersectionObserver(es=>{onScreen=es[0].isIntersecting}).observe(canvas)}catch(e){}
   if(!opts.manual)requestAnimationFrame(loop);
   return{setMood(m){mood=m},play,get mood(){return mood},
+    /* para gerar as poses-chave: pose absoluta (graus) + pontos de referência na tela */
+    _set(o){mood='neutral';ev=null;prop=null;fx=[];const r=rest();for(const k in o){const v=o[k];r[k]=[v[0]||0,v[1]||0,v[2]||0,v[3]===undefined?1:v[3],v[4]===undefined?1:v[4]]}
+      for(const b of BONES)cur[b[0]]=r[b[0]].slice();frameNoSmooth(0);
+      const h=headPt(),R=handPt('R'),L=handPt('L'),f=footPt();return{head:h,handR:R,handL:L,foot:f}},
     /* só para testes: desenha um instante exato, sem suavização */
     _at(sec,m,k,q){mood=m;ev=k?{k,dur:1}:null;t0=sec-(q||0);lastT=0;for(const b of BONES)cur[b[0]]=[0,0,0,1,1];const tg=k?eventPose(k,q,sec,moodPose(sec)):moodPose(sec);for(const b of BONES)cur[b[0]]=tg[b[0]].slice();prop=k?({eat:'burger',fuel:'fuel',fix:'wrench'}[k]||null):null;frameNoSmooth(sec)}};
 }
