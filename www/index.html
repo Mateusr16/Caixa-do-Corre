@@ -150,15 +150,11 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
 .pop{position:absolute;left:-30px;top:46px;transform:translateX(-50%);font-size:24px;color:#ffe14a;text-shadow:0 2px 0 #0006,0 0 6px #0005;opacity:0;pointer-events:none;z-index:2}
 .pop.go{animation:pop 1.3s ease-out}
 @keyframes pop{0%{opacity:0;transform:translate(-50%,10px)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-50px)}}
-/* ---------- motoboy 3D ---------- */
-.m3d,.sweat3d,.prop{display:none;position:absolute;pointer-events:none}
-.stage.on3d .moto{display:none}
-.stage.on3d::before{display:none}
-.stage.on3d .m3d{display:block;left:-34px;right:-4px;top:-6px;bottom:-2px;width:calc(100% + 38px);height:calc(100% + 8px);pointer-events:auto;cursor:pointer}
-.sweat3d{width:30px;height:15px;transform:translate(-50%,-50%);fill:#5ab4ff;stroke:#121418;stroke-width:.6}
-.stage.on3d .sweat3d.on{display:block;animation:tear 1.1s ease-in infinite}
-.prop{width:34px;height:38px;transform:translate(-50%,-50%);z-index:2}
-.stage.on3d .prop.on{display:block}
+/* ---------- motoboy 2D animado ---------- */
+.pup{display:none;position:absolute;left:-46px;right:-14px;top:-58px;bottom:-4px;width:calc(100% + 60px);height:calc(100% + 62px);cursor:pointer}
+.stage.onPup .moto{display:none}
+.stage.onPup::before{display:none}
+.stage.onPup .pup{display:block}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.moto *,.pop{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
 </head>
@@ -170,21 +166,7 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
     <div class="stage" id="stage">
       <div class="bubble" id="bubble"></div>
       <div class="pop num" id="pop"></div>
-      <canvas class="m3d" id="m3d" aria-label="Motoboy 3D" role="img"></canvas>
-      <svg class="sweat3d" id="sweat3d" viewBox="-30 -20 60 30" aria-hidden="true"><path d="M-24 -8q-3 5 0 7q3-2 0-7z"/><path d="M25 -14q-3 5 0 7q3-2 0-7z"/></svg>
-      <svg class="prop" id="pBurger" viewBox="-15 -19 30 34" aria-hidden="true"><g ><g >
-              <path d="M-10 -1 Q0 -14 10 -1z" fill="#e0953f" stroke="#1b1e22" stroke-width="1.2"/>
-              <rect x="-11" y="-1" width="22" height="3" rx="1.5" fill="#56c25a"/>
-              <rect x="-10" y="2" width="20" height="4" rx="2" fill="#6b3a1e"/>
-              <rect x="-10" y="6" width="20" height="4" rx="2" fill="#e0953f" stroke="#1b1e22" stroke-width="1.2"/>
-            </g></g></svg><svg class="prop" id="pFuel" viewBox="-15 -19 30 34" aria-hidden="true"><g >
-              <rect x="-9" y="-10" width="18" height="20" rx="3" fill="#d8262d" stroke="#1b1e22" stroke-width="1.2"/>
-              <path d="M5 -10l5 -6" stroke="#1b1e22" stroke-width="3" stroke-linecap="round"/><rect x="-5" y="-6" width="10" height="3" rx="1" fill="#fff" opacity=".6"/>
-            </g></svg><svg class="prop" id="pTool" viewBox="-15 -19 30 34" aria-hidden="true"><g >
-              <path d="M-2 14 L-2 -6 M-7 -10 a6 6 0 1 0 10 0 l-3 4 h-4z" stroke="#9aa3ad" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </g></svg><svg class="prop" id="pBill" viewBox="-15 -19 30 34" aria-hidden="true"><g >
-              <rect x="-11" y="-6" width="22" height="12" rx="2" fill="#4fbf6f" stroke="#1b1e22" stroke-width="1.2"/><circle r="3.4" fill="none" stroke="#1b1e22" stroke-width="1.2"/>
-            </g></svg>
+      <canvas class="pup" id="pup" data-headroom="58" aria-label="Motoboy animado" role="img"></canvas>
       <svg class="moto" id="moto" data-mood="neutral" viewBox="0 0 120 140" role="img" aria-label="Motoboy">
         <defs>
           <clipPath id="faceClip"><path d="M40 31 Q60 23 80 31 L81 44 Q79 53 60 54 Q41 53 39 44 Z"/></clipPath>
@@ -288,7 +270,7 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
 
 <div class="toast" id="toast" role="status"><span id="tMsg"></span><button id="tUndo">Desfazer</button></div>
 
-<script src="moto3d.js"></script>
+<script src="boneco/puppet.js"></script>
 <script>
 {
 const $=id=>document.getElementById(id);
@@ -446,7 +428,7 @@ const MOOD_TXT={happy:"Motoboy feliz",neutral:"Motoboy tranquilo",sad:"Motoboy t
 let busy=null,moodNow="neutral";
 function setMood(net){
   moodNow=net>0?"happy":net===0?"neutral":net<=SCARED?"scared":"sad";
-  const m=$("moto");m.dataset.mood=moodNow;M3.mood=moodNow;m.setAttribute("aria-label",MOOD_TXT[moodNow]);
+  const m=$("moto");m.dataset.mood=moodNow;if(PUP.api)PUP.api.setMood(moodNow);m.setAttribute("aria-label",MOOD_TXT[moodNow]);
 }
 const LINES={
   jump:["Boa! Bora pra próxima!","Aí sim!","Dinheiro no bolso!","Mais uma!"],
@@ -460,7 +442,7 @@ function play(kind,amountText){
   const m=$("moto");
   for(const k in DUR)m.classList.remove("ev-"+k);
   void m.getBoundingClientRect(); // reinicia a animação se repetir
-  m.classList.add("ev-"+kind);M3.ev=kind;M3.t0=performance.now()/1000;
+  m.classList.add("ev-"+kind);if(PUP.api)PUP.api.play(kind);
   clearTimeout(busy);busy=setTimeout(()=>m.classList.remove("ev-"+kind),DUR[kind]);
   say(pick(LINES[kind]));
   if(amountText){const p=$("pop");p.textContent=amountText;p.classList.remove("go");void p.offsetWidth;p.classList.add("go")}
@@ -478,130 +460,14 @@ $("moto").onclick=()=>{
   if(moodNow==="neutral")say(pick(t));
 };
 
-/* ---------- motoboy 3D ---------- */
-const M3={ok:false,ev:null,t0:0,mood:"neutral",api:null};
-const ANC={"visor": [0.2906, 0.6885, 0.6455], "handUp": [0.6967, 0.3371, 0.6404], "handLow": [-0.189, -0.1518, 0.6148]};
-const BASE=0.349;
+/* ---------- motoboy 2D animado ---------- */
+const PUP={api:null};
 (async()=>{
-  if(!window.Moto3D)return;
-  try{
-    M3.api=await Moto3D.create($("m3d"),"moto3d.bin","moto3d.jpg");
-    M3.ok=true;$("stage").classList.add("on3d");requestAnimationFrame(loop3d);
-  }catch(err){/* sem WebGL: fica o boneco 2D */}
+  if(!window.Puppet)return;
+  try{PUP.api=await Puppet.create($("pup"),"boneco/");PUP.api.setMood(moodNow);$("stage").classList.add("onPup")}
+  catch(err){/* sem as imagens: fica o boneco 2D simples */}
 })();
-function ease(p){return p<.5?2*p*p:1-(-2*p+2)**2/2}
-const BN=["pelvis","chest","head","armR","foreR","armL","foreL","thighL","shinL","thighR","shinR","handR","handL"];
-// dedos ficam fixos num punho fechado (dobrar a malha dos dedos deixava eles se atravessando)
-const FIST={fingR:[.3,0,0,.35],fingR2:[0,0,0],thumbR:[0,0,0]};
-function mix(a,b,f){const o={};for(const k of BN){const x=a[k]||[0,0,0],y=b[k]||[0,0,0];o[k]=[x[0]+(y[0]-x[0])*f,x[1]+(y[1]-x[1])*f,x[2]+(y[2]-x[2])*f]}o._y=(a._y||0)+((b._y||0)-(a._y||0))*f;return o}
-const env=(q,i=.15,o=.15)=>q<i?ease(q/i):q>1-o?ease((1-q)/o):1;
-const S=Math.sin;
-// mão fechada por padrão; os dedos "respiram" um pouco
-const fist=()=>({});
-function moodBones(m,t){
-  if(m==="happy"){const k=(S(t*8)+1)/2,b=S(t*4),b2=S(t*4-.6);
-    return Object.assign(fist(t),{pelvis:[0,b*.1,0],chest:[.04,b2*.12,0],head:[.07*S(t*8-.8),-b2*.12,0],
-      thighL:[-.28*k,0,0],shinL:[.45*k,0,0],thighR:[-.28*k,0,0],shinR:[.45*k,0,0],
-      armR:[0,0,.2+.15*b],foreR:[0,0,-.15+.35*S(t*8)],handR:[0,0,.4*S(t*8-1.1)],
-      armL:[.3*b,0,-.12],foreL:[-.3-.25*(b+1)/2,0,0],handL:[.35*b2,0,0],_y:-.05*k})}
-  if(m==="sad")return Object.assign(fist(t),{chest:[.16,0,0],head:[.38+.03*S(t*.8),S(t*.35)*.15,0],
-      armR:[0,0,-.15],foreR:[0,0,-2.35+S(t*.7)*.05],handR:[.5,0,0],
-      armL:[.1,0,.05],foreL:[.1,0,.15],handL:[.35,0,0],thighL:[-.08,0,0],shinL:[.12,0,0],thighR:[-.08,0,0],shinR:[.12,0,0],_y:-.015});
-  if(m==="scared"){const j=S(t*38)*.05,j2=Math.cos(t*33)*.05;
-    return{chest:[-.08,0,0],head:[-.1+j*.5,j2*1.5,0],
-      armR:[0,0,1.4+j2],foreR:[0,0,-1.1],handR:[j*3,0,j2*4],
-      armL:[-.25,0,-.08+j],foreL:[-.55,0,-.15],handL:[-.35+j*3,0,j2*3],
-      thighL:[-.25+j*.4,0,0],shinL:[.4,0,0],thighR:[-.25-j*.4,0,0],shinR:[.4,0,0],_y:-.04}}
-  // tranquilo: respira, olha em volta, dá tchau de vez em quando e batuca na cintura
-  const cyc=t%7,wave=cyc>4.4&&cyc<6.6?S((cyc-4.4)/2.2*Math.PI):0,sw=S(t*.8);
-  return Object.assign(fist(t),{pelvis:[0,0,sw*.03],chest:[S(t*1.6)*.02,S(t*.5-.5)*.05,-sw*.02],head:[S(t*.9)*.05,S(t*.5)*.3,0],
-    thighL:[0,0,-sw*.03],thighR:[0,0,-sw*.03],
-    armR:[0,0,wave*.3],foreR:[0,0,wave*(-.1+S(t*9)*.3)],handR:[0,0,wave*.45*S(t*9-1)],
-    armL:[0,0,S(t*1.6)*.03],handL:[Math.max(0,S(t*5))*.18*(cyc<3?1:0),0,0]});
-}
-function eventBones(k,q,t){
-  if(k==="jump"){
-    const crouch={thighL:[-.6,0,0],shinL:[.95,0,0],thighR:[-.6,0,0],shinR:[.95,0,0],chest:[.22,0,0],head:[.1,0,0],armL:[.3,0,0],armR:[.5,0,0],handR:[.3,0,0],_y:-.11};
-    const air={thighL:[-.55,0,0],shinL:[1.05,0,0],thighR:[-.35,0,0],shinR:[.7,0,0],chest:[-.1,0,0],head:[-.18,0,0],
-      armL:[-.28,0,-.15],foreL:[-.55,0,0],handL:[-.35,0,0],armR:[0,0,1.6],foreR:[0,0,-1.1],handR:[0,0,.3]};
-    if(q<.15)return mix({},crouch,ease(q/.15));
-    if(q<.25)return mix(crouch,air,ease((q-.15)/.1));
-    if(q<.8)return air;
-    if(q<.9)return mix(air,crouch,ease((q-.8)/.1));
-    return mix(crouch,{},ease((q-.9)/.1));
-  }
-  if(k==="eat"){
-    const toMouth={armR:[-.5,0,.6],foreR:[0,0,.6],handR:[-.3,0,.2],head:[-.05,.15,0],chest:[-.04,.1,0]};
-    if(q<.27)return{foreR:[0,0,-.2*S(q/.27*Math.PI)],handR:[.2*S(q/.27*Math.PI),0,0]};
-    if(q<.42)return mix({},toMouth,ease((q-.27)/.15));
-    if(q<.85){const c=S((q-.42)*55);return Object.assign({},toMouth,{head:[-.05+c*.08,.15,0],foreR:[0,0,.6+c*.08],handR:[-.3+c*.1,0,.2]})}
-    return mix(toMouth,{},ease((q-.85)/.15));
-  }
-  if(k==="fuel"){
-    const hold={foreL:[-.9,0,-.3],armL:[-.2,0,.15],handL:[-.3,0,0]},sigh={head:[.4,0,0],chest:[.18,0,0],foreR:[0,0,-1.2],handR:[.4,0,0]};
-    if(q<.3)return mix({},hold,ease(q/.3));
-    return Object.assign({},hold,mix({},sigh,env((q-.3)/.7,.25,.3)));
-  }
-  if(k==="fix"){
-    const hold={foreL:[-.8,0,-.3],armL:[-.25,0,.2],head:[.2,-.25,0],chest:[.1,0,0]};
-    const o=mix({},hold,env(q,.2,.15));
-    if(q>.3&&q<.85)o.handL=[-.2,S((q-.3)*28)*.7,0];
-    return o;
-  }
-  if(k==="loss"){
-    const throwA={armR:[0,0,.7],foreR:[0,0,-.9],handR:[0,0,-.6]},
-          reach={armR:[-.3,0,.9],foreR:[0,0,-.3],handR:[0,0,.3],head:[-.25,.2,0],chest:[-.06,0,0]};
-    if(q<.18)return mix({},throwA,ease(q/.18));
-    if(q<.4)return mix(throwA,reach,ease((q-.18)/.22));
-    return mix(reach,{},ease(Math.max(0,(q-.6)/.4)));
-  }
-  return{};
-}
-function pose3d(t){
-  const m=M3.mood,p={rot:BASE,tilt:0,roll:0,y:0,x:0,sx:1,sy:1};
-  if(m==="happy")p.rot+=S(t*.9)*.3;
-  else if(m==="neutral")p.rot+=S(t*.45)*.2;
-  else if(m==="sad")p.rot+=S(t*.35)*.08;
-  else{p.rot+=S(t*1.7)*.06;p.x=S(t*42)*.008}
-  let bones=moodBones(m,t);
-  const e=M3.ev;let k=null,q=0;
-  if(e){q=(t-M3.t0)/(DUR[e]/1000);if(q>=1){M3.ev=null}else k=e}
-  if(k){bones=mix(bones,eventBones(k,q,t),k==="jump"?1:env(q,.1,.12));
-    if(k==="jump"&&q>.25&&q<.8){const a=(q-.25)/.55;p.y=4*.2*a*(1-a);p.rot=BASE+Math.PI*2*ease(a)}}
-  p.bones=bones;
-  return{p,k,q};
-}
-/* suaviza todas as juntas (movimento fluido, sem trancos ao trocar de humor) */
-const CUR={};let lastT=0;
-function smooth(bones,t,k){
-  const dt=Math.min(.1,Math.max(0,t-(lastT||t)));lastT=t;
-  const a=1-Math.exp(-dt*(k?16:7));
-  for(const n of BN){const tg=bones[n]||[0,0,0],c=CUR[n]||(CUR[n]=tg.slice());for(let i=0;i<3;i++)c[i]+=(tg[i]-c[i])*a}
-  CUR._y=(CUR._y||0)+((bones._y||0)-(CUR._y||0))*a;
-  const o={};for(const n of BN)o[n]=CUR[n].slice();o._y=CUR._y;return o;
-}
-let onScreen=true;
-try{new IntersectionObserver(es=>{onScreen=es[0].isIntersecting}).observe($("stage"))}catch(e){}
-function loop3d(ms){
-  if(!document.hidden&&onScreen){
-    const t=ms/1000,{p,k,q}=pose3d(t),api=M3.api;
-    p.bones=Object.assign(smooth(p.bones,t,k),FIST);p.y+=p.bones._y||0;
-    api.draw(p);
-    const st=$("stage").getBoundingClientRect(),cv=$("m3d").getBoundingClientRect(),ox=cv.left-st.left,oy=cv.top-st.top;
-    const place=(el,v,dx=0,dy=0,extra="",bone)=>{const s=api.project(v,p,bone);el.style.left=(ox+s.x+dx)+"px";el.style.top=(oy+s.y+dy)+"px";el.style.transform="translate(-50%,-50%) "+extra};
-    const turn=Math.cos(p.rot-BASE);
-    const sw=$("sweat3d");sw.classList.toggle("on",(M3.mood==="scared"||k==="fuel")&&turn>.3);place(sw,ANC.visor,0,-8,"","head");
-    for(const id of["pBurger","pFuel","pTool","pBill"])$(id).classList.remove("on");
-    if(k==="eat"){const el=$("pBurger");el.classList.add("on");
-      const bites=q<.45?1:Math.max(0,1-Math.floor((q-.45)/.09)*.25);
-      place(el,ANC.handUp,0,q<.27?-140*(1-q/.27)**2:-6,`scale(${bites})`,"handR")}
-    else if(k==="fuel"){place($("pFuel"),ANC.handLow,4,-150*Math.max(0,1-q/.27)**2+6,"","handL");$("pFuel").classList.add("on")}
-    else if(k==="fix"){const el=$("pTool");el.classList.add("on");place(el,ANC.handLow,4,-150*Math.max(0,1-q/.3)**2,q>.35?`rotate(${(Math.sin((q-.3)*28)*-35).toFixed(0)}deg)`:"","handL")}
-    else if(k==="loss"){const el=$("pBill");el.classList.add("on");const a=Math.max(0,(q-.15)/.85);place(el,ANC.handUp,a*60,-a*120,`rotate(${(a*220).toFixed(0)}deg)`,"handR");el.style.opacity=1-a}
-  }
-  requestAnimationFrame(loop3d);
-}
-$("m3d").onclick=()=>$("moto").onclick();
+$("pup").onclick=()=>$("moto").onclick();
 
 setType("g");boot();
 setInterval(()=>{if($("hdate").dataset.k!==today()){$("hdate").dataset.k=today();render()}},60000);
