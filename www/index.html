@@ -155,6 +155,8 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
 .stage.onPup .moto{display:none}
 .stage.onPup::before{display:none}
 .stage.onPup .pup{display:block}
+.m3d{display:none;position:absolute;left:-46px;right:-14px;top:-26px;bottom:-4px;width:calc(100% + 60px);height:calc(100% + 30px);cursor:pointer}
+.stage.on3d .moto,.stage.on3d .pup{display:none}.stage.on3d::before{display:none}.stage.on3d .m3d{display:block}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.moto *,.pop{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
 </head>
@@ -166,6 +168,7 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
     <div class="stage" id="stage">
       <div class="bubble" id="bubble"></div>
       <div class="pop num" id="pop"></div>
+      <canvas class="m3d" id="m3d" aria-label="Motoboy 3D animado" role="img"></canvas>
       <canvas class="pup" id="pup" data-headroom="58" aria-label="Motoboy animado" role="img"></canvas>
       <svg class="moto" id="moto" data-mood="neutral" viewBox="0 0 120 140" role="img" aria-label="Motoboy">
         <defs>
@@ -270,6 +273,8 @@ footer{padding:20px 0 40px;font-size:13px;color:var(--mute)}
 
 <div class="toast" id="toast" role="status"><span id="tMsg"></span><button id="tUndo">Desfazer</button></div>
 
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js"}}</script>
+<script type="module" src="boneco/moto3d.js"></script>
 <script src="boneco/sprite.js"></script>
 <script>
 {
@@ -463,11 +468,15 @@ $("moto").onclick=()=>{
 /* ---------- motoboy 2D animado ---------- */
 const PUP={api:null};
 (async()=>{
+  // 1) tenta o boneco 3D do Blender; 2) se o aparelho não tiver WebGL, usa o boneco 2D
+  const ready=window.Moto3D?Promise.resolve():new Promise(r=>{window.addEventListener('moto3d-ready',r,{once:true});setTimeout(r,4000)});
+  await ready;
+  if(window.Moto3D){try{PUP.api=await Moto3D.create($("m3d"));PUP.api.setMood(moodNow);$("stage").classList.add("on3d");return}catch(err){console.warn('3D falhou',err)}}
   if(!window.Sprite)return;
   try{PUP.api=await Sprite.create($("pup"),"boneco/");PUP.api.setMood(moodNow);$("stage").classList.add("onPup")}
   catch(err){/* sem as imagens: fica o boneco 2D simples */}
 })();
-$("pup").onclick=()=>$("moto").onclick();
+$("pup").onclick=$("m3d").onclick=()=>$("moto").onclick();
 
 setType("g");boot();
 setInterval(()=>{if($("hdate").dataset.k!==today()){$("hdate").dataset.k=today();render()}},60000);
